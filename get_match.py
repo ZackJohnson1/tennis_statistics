@@ -1,22 +1,24 @@
-def get_match_stats(match_num, tourney_id=None, tourney_name=None):
-    column_mapping = {
-        'tourney_id': 'Tournament ID',
-        'tourney_name': 'Tournament Name',
-        'match_num': 'Match Number',
-        'winner_id': 'Winner ID',
-        # add more mappings as needed
-    }
-    with open('atp_matches_2022.csv', 'r') as f:
-        header = next(f).strip().split(',')
-        for line in f:
-            data = line.strip().split(',')
-            match_condition = data[header.index('match_num')] == str(match_num)
-            tourney_id_condition = True if tourney_id is None else data[header.index('tourney_id')] == tourney_id
-            tourney_name_condition = True if tourney_name is None else data[header.index('tourney_name')] == tourney_name
-            if match_condition and tourney_id_condition and tourney_name_condition:
-                match_data = dict(zip(header, data))
-                return '\n'.join(f'{column_mapping.get(key, key)}: {value}' for key, value in match_data.items())
-    return 'No match with such parameters found.'
+import csv
 
-# Example of use:
-print(get_match_stats(300, tourney_id='2022-8888'))    # by tourney_id
+def get_match_stats(file_path, tourney_id, match_num):
+    with open(file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['tourney_id'] == tourney_id and int(row['match_num']) == match_num:
+                winner_stats = {key: val for key, val in row.items() if key.startswith('winner_') or key.startswith('w_')}
+                loser_stats = {key: val for key, val in row.items() if key.startswith('loser_') or key.startswith('l_')}
+                return winner_stats, loser_stats
+    return None, None
+
+#Testing
+winner_stats, loser_stats = get_match_stats('atp_matches_2022.csv', '2022-8888', 300)
+
+print("WINNER STATISTICS:\n")
+for key, val in winner_stats.items():
+    print(f"{key}: {val}")
+
+print("\n-------------------------------------------------------------------")
+
+print("\nLOSER STATISTICS:\n")
+for key, val in loser_stats.items():
+    print(f"{key}: {val}")
