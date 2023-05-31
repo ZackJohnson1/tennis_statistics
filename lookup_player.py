@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 
 def getPlayerMatches(player_name, csv_filename):
     player_name = player_name.title()  # Convert to title case
@@ -8,8 +9,10 @@ def getPlayerMatches(player_name, csv_filename):
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['winner_name'] == player_name or row['loser_name'] == player_name:
+                # Convert date from YYYYMMDD to a more human-readable format
+                date = datetime.strptime(row['tourney_date'], '%Y%m%d').strftime('%B %d, %Y')
                 match = {'TOURNAMENT': row['tourney_name'], 
-                         'DATE': row['tourney_date'],
+                         'DATE': date,
                          'WINNER': row['winner_name'], 
                          'LOSER': row['loser_name'], 
                          'SCORE': row['score']}
